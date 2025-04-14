@@ -3,76 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bar Down Jones</title>
+    <title>Bar Down Jones - Simulador de Bolsa</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Ticker de precios -->
-    <div id="ticker" class="ticker"></div>
-
-    <!-- Índice Down Jones -->
-    <div id="index-display" class="index-display">Índice Down Jones: 1000</div>
-
-    <!-- Temporizador de descuentos -->
-    <div id="discount-timer" class="discount-timer hidden"></div>
-
-    <!-- Notificaciones -->
-    <div id="notification" class="notification hidden"></div>
-
-    <!-- Panel de administración -->
-    <div id="admin-panel" class="admin-panel hidden admin-only">
-        <button id="config-button">Configuración</button>
-        <button id="history-button">Historial</button>
+    <div class="container">
+        <h1>Bar Down Jones</h1>
+        <div class="controls admin-only">
+            <label><input type="checkbox" id="sound-toggle"> Activar sonido</label>
+            <button id="theme-toggle">Cambiar Tema</button>
+            <button id="config-toggle">Configuración</button>
+        </div>
+        <div id="config-panel" class="config-panel hidden admin-only">
+            <h2>Configuración</h2>
+            <form id="config-form">
+                <label>Probabilidad de Descuento (%): <input type="number" id="discount-probability" min="0" max="100" step="0.1" value="2"></label>
+                <label>Porcentaje de Descuento (%): <input type="number" id="discount-percentage" min="0" max="100" step="1" value="10"></label>
+                <label>Duración de Ofertas (segundos): <input type="number" id="discount-duration" min="1" value="180"></label>
+                <label>Intervalo de Mercado (segundos): <input type="number" id="market-interval" min="1" value="10"></label>
+                <label>Tiempo hasta Crash (segundos): <input type="number" id="crash-time" min="1" value="300"></label>
+                <label>Caída en Crash (%): <input type="number" id="crash-percentage" min="0" max="100" step="1" value="30"></label>
+                <label>Fluctuación de Precios (%): <input type="number" id="price-fluctuation" min="0" step="0.1" value="2"></label>
+                <label>Aumento tras Compra (%): <input type="number" id="purchase-increase" min="0" step="0.1" value="5"></label>
+                <label>Incremento de Índice por Compra: <input type="number" id="index-increment" min="0" step="1" value="10"></label>
+                <label>Duración del Ticker (segundos): <input type="number" id="ticker-duration" min="1" value="80"></label>
+                <label>Tiempo de Notificación (segundos): <input type="number" id="notification-time" min="1" step="0.1" value="3"></label>
+                <button type="submit">Aplicar</button>
+                <button type="button" id="config-close">Cerrar</button>
+            </form>
+        </div>
+        <div class="index">
+            <h2>Índice Down Jones: <span id="index-value">1000</span></h2>
+            <canvas id="index-chart" width="200" height="100" class="admin-only"></canvas>
+            <p>Próximo Crash: <span id="crash-timer">5:00</span></p>
+            <p class="discount-info">Próximo Descuento: <span id="discount-timer">Esperando próxima oferta...</span></p>
+        </div>
+        <div class="drinks">
+            <h2>Bebidas Disponibles</h2>
+            <div class="categories">
+                <div class="category">
+                    <h3>Cócteles</h3>
+                    <ul id="cocktails-list" class="drinks-list"></ul>
+                </div>
+                <div class="category">
+                    <h3>Cervezas</h3>
+                    <ul id="beers-list" class="drinks-list"></ul>
+                </div>
+                <div class="category">
+                    <h3>Sin Alcohol</h3>
+                    <ul id="non-alcoholic-list" class="drinks-list"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-section admin-only">
+            <div class="cart">
+                <h2>Tu Pedido</h2>
+                <ul id="cart-items"></ul>
+                <p>Total: €<span id="cart-total">0</span></p>
+                <button id="buy-button">Comprar</button>
+            </div>
+            <div class="history">
+                <h2>Historial de Transacciones</h2>
+                <ul id="history-list"></ul>
+            </div>
+        </div>
+        <div class="ticker">
+            <div id="ticker-content"></div>
+        </div>
+        <div id="notifications"></div>
     </div>
-
-    <!-- Panel de configuración -->
-    <div id="config-panel" class="config-panel hidden admin-only">
-        <h2>Configuración</h2>
-        <form id="config-form">
-            <label>Probabilidad de Descuento (%): <input type="number" id="discount-probability" min="0" max="100" step="0.01" value="0.5"></label>
-            <label>Porcentaje de Descuento (%): <input type="number" id="discount-percentage" min="0" max="100" step="1" value="10"></label>
-            <label>Duración de Ofertas (segundos): <input type="number" id="discount-duration" min="1" value="180"></label>
-            <label>Intervalo de Mercado (segundos): <input type="number" id="market-interval" min="1" max="3600" step="0.1" value="30"></label>
-            <label>Tiempo hasta Crash (segundos): <input type="number" id="crash-time" min="1" value="300"></label>
-            <label>Caída en Crash (%): <input type="number" id="crash-percentage" min="0" max="100" step="1" value="30"></label>
-            <label>Fluctuación de Precios (%): <input type="number" id="price-fluctuation" min="0" step="0.1" value="2"></label>
-            <label>Aumento tras Compra (%): <input type="number" id="purchase-increase" min="0" step="0.1" value="5"></label>
-            <label>Incremento de Índice por Compra: <input type="number" id="index-increment" min="0" step="1" value="10"></label>
-            <label>Duración del Ticker (segundos): <input type="number" id="ticker-duration" min="1" value="80"></label>
-            <label>Tiempo de Notificación (segundos): <input type="number" id="notification-time" min="1" step="0.1" value="3"></label>
-            <button type="button" id="reset-prices">Reset Precios</button>
-            <button type="submit">Aplicar</button>
-            <button type="button" id="config-close">Cerrar</button>
-        </form>
-    </div>
-
-    <!-- Panel de historial -->
-    <div id="history-panel" class="history-panel hidden admin-only">
-        <h2>Historial de Transacciones</h2>
-        <ul id="history-list"></ul>
-        <button id="history-close">Cerrar</button>
-    </div>
-
-    <!-- Lista de bebidas -->
-    <div id="drinks-container" class="drinks-container">
-        <h2>Cócteles</h2>
-        <div id="cocktails" class="category"></div>
-        <h2>Cervezas</h2>
-        <div id="beers" class="category"></div>
-        <h2>Bebidas sin alcohol</h2>
-        <div id="non-alcoholic" class="category"></div>
-    </div>
-
-    <!-- Carrito -->
-    <div id="cart-panel" class="cart-panel hidden admin-only">
-        <h2>Carrito</h2>
-        <ul id="cart-list"></ul>
-        <p>Total: <span id="cart-total">0</span> €</p>
-        <button id="cart-buy">Comprar</button>
-        <button id="cart-clear">Vaciar</button>
-        <button id="cart-close">Cerrar</button>
-    </div>
-
+    <audio id="crash-sound" src="https://www.soundjay.com/buttons/beep-01a.mp3"></audio>
     <script src="script.js"></script>
 </body>
 </html>
