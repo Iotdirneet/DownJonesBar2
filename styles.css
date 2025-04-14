@@ -59,6 +59,10 @@ body.light-theme #discount-timer.static {
     color: #666;
 }
 
+body.light-theme .discount-text {
+    color: #ffd700; /* Amarillo dorado para mejor contraste en tema claro */
+}
+
 body.client-mode .admin-only {
     display: none;
 }
@@ -316,7 +320,16 @@ h1 {
 .drink-item .name .discount-text {
     display: block;
     font-size: 0.8em;
-    color: #ff4081;
+    color: #ffff00; /* Amarillo brillante */
+    font-weight: bold;
+    text-transform: uppercase;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
 }
 
 .drink-item .price {
