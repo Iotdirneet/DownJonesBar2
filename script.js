@@ -1,28 +1,28 @@
 // Lista de bebidas con categorías
 const drinks = [
     // Cócteles
-    { id: 1, name: "Mojito", price: 8, popularity: 0, category: "cocktails", prevPrice: 8, discount: false },
-    { id: 2, name: "Caipirinha", price: 7, popularity: 0, category: "cocktails", prevPrice: 7, discount: false },
-    { id: 3, name: "Gin Tonic", price: 9, popularity: 0, category: "cocktails", prevPrice: 9, discount: false },
-    { id: 4, name: "Margarita", price: 8, popularity: 0, category: "cocktails", prevPrice: 8, discount: false },
-    { id: 5, name: "Negroni", price: 10, popularity: 0, category: "cocktails", prevPrice: 10, discount: false },
-    { id: 6, name: "Old Fashioned", price: 11, popularity: 0, category: "cocktails", prevPrice: 11, discount: false },
-    { id: 7, name: "Daiquiri", price: 8.5, popularity: 0, category: "cocktails", prevPrice: 8.5, discount: false },
+    { id: 1, name: "Mojito", price: 8, popularity: 0, category: "cocktails", prevPrice: 8, discount: false, discountEndTime: 0 },
+    { id: 2, name: "Caipirinha", price: 7, popularity: 0, category: "cocktails", prevPrice: 7, discount: false, discountEndTime: 0 },
+    { id: 3, name: "Gin Tonic", price: 9, popularity: 0, category: "cocktails", prevPrice: 9, discount: false, discountEndTime: 0 },
+    { id: 4, name: "Margarita", price: 8, popularity: 0, category: "cocktails", prevPrice: 8, discount: false, discountEndTime: 0 },
+    { id: 5, name: "Negroni", price: 10, popularity: 0, category: "cocktails", prevPrice: 10, discount: false, discountEndTime: 0 },
+    { id: 6, name: "Old Fashioned", price: 11, popularity: 0, category: "cocktails", prevPrice: 11, discount: false, discountEndTime: 0 },
+    { id: 7, name: "Daiquiri", price: 8.5, popularity: 0, category: "cocktails", prevPrice: 8.5, discount: false, discountEndTime: 0 },
     // Cervezas
-    { id: 8, name: "Cerveza Artesanal", price: 5, popularity: 0, category: "beers", prevPrice: 5, discount: false },
-    { id: 9, name: "IPA", price: 6, popularity: 0, category: "beers", prevPrice: 6, discount: false },
-    { id: 10, name: "Lager", price: 4.5, popularity: 0, category: "beers", prevPrice: 4.5, discount: false },
-    { id: 11, name: "Stout", price: 6.5, popularity: 0, category: "beers", prevPrice: 6.5, discount: false },
-    { id: 12, name: "Pilsner", price: 5, popularity: 0, category: "beers", prevPrice: 5, discount: false },
-    { id: 13, name: "Weissbier", price: 5.5, popularity: 0, category: "beers", prevPrice: 5.5, discount: false },
+    { id: 8, name: "Cerveza Artesanal", price: 5, popularity: 0, category: "beers", prevPrice: 5, discount: false, discountEndTime: 0 },
+    { id: 9, name: "IPA", price: 6, popularity: 0, category: "beers", prevPrice: 6, discount: false, discountEndTime: 0 },
+    { id: 10, name: "Lager", price: 4.5, popularity: 0, category: "beers", prevPrice: 4.5, discount: false, discountEndTime: 0 },
+    { id: 11, name: "Stout", price: 6.5, popularity: 0, category: "beers", prevPrice: 6.5, discount: false, discountEndTime: 0 },
+    { id: 12, name: "Pilsner", price: 5, popularity: 0, category: "beers", prevPrice: 5, discount: false, discountEndTime: 0 },
+    { id: 13, name: "Weissbier", price: 5.5, popularity: 0, category: "beers", prevPrice: 5.5, discount: false, discountEndTime: 0 },
     // Sin Alcohol
-    { id: 14, name: "Limonada", price: 3, popularity: 0, category: "non-alcoholic", prevPrice: 3, discount: false },
-    { id: 15, name: "Mojito Sin", price: 4, popularity: 0, category: "non-alcoholic", prevPrice: 4, discount: false },
-    { id: 16, name: "Té Helado", price: 3.5, popularity: 0, category: "non-alcoholic", prevPrice: 3.5, discount: false },
-    { id: 17, name: "Agua Tónica", price: 2.5, popularity: 0, category: "non-alcoholic", prevPrice: 2.5, discount: false },
-    { id: 18, name: "Zumo Natural", price: 4, popularity: 0, category: "non-alcoholic", prevPrice: 4, discount: false },
-    { id: 19, name: "Kombucha", price: 4.5, popularity: 0, category: "non-alcoholic", prevPrice: 4.5, discount: false },
-    { id: 20, name: "Smoothie", price: 5, popularity: 0, category: "non-alcoholic", prevPrice: 5, discount: false }
+    { id: 14, name: "Limonada", price: 3, popularity: 0, category: "non-alcoholic", prevPrice: 3, discount: false, discountEndTime: 0 },
+    { id: 15, name: "Mojito Sin", price: 4, popularity: 0, category: "non-alcoholic", prevPrice: 4, discount: false, discountEndTime: 0 },
+    { id: 16, name: "Té Helado", price: 3.5, popularity: 0, category: "non-alcoholic", prevPrice: 3.5, discount: false, discountEndTime: 0 },
+    { id: 17, name: "Agua Tónica", price: 2.5, popularity: 0, category: "non-alcoholic", prevPrice: 2.5, discount: false, discountEndTime: 0 },
+    { id: 18, name: "Zumo Natural", price: 4, popularity: 0, category: "non-alcoholic", prevPrice: 4, discount: false, discountEndTime: 0 },
+    { id: 19, name: "Kombucha", price: 4.5, popularity: 0, category: "non-alcoholic", prevPrice: 4.5, discount: false, discountEndTime: 0 },
+    { id: 20, name: "Smoothie", price: 5, popularity: 0, category: "non-alcoholic", prevPrice: 5, discount: false, discountEndTime: 0 }
 ];
 
 let cart = [];
@@ -92,11 +92,13 @@ function displayDrinks() {
     drinks.forEach(drink => {
         const drinkLi = document.createElement('li');
         drinkLi.classList.add('drink-item');
-        if (drink.discount) drinkLi.classList.add('discount');
+        if (drink.discount && drink.discountEndTime > Date.now()) {
+            drinkLi.classList.add('discount');
+        }
         const arrowClass = drink.price > drink.prevPrice ? 'arrow-up' : drink.price < drink.prevPrice ? 'arrow-down' : '';
-        const displayPrice = drink.discount ? (drink.price * 0.9).toFixed(2) : drink.price.toFixed(2);
+        const displayPrice = (drink.discount && drink.discountEndTime > Date.now()) ? (drink.price * 0.9).toFixed(2) : drink.price.toFixed(2);
         drinkLi.innerHTML = `
-            <span class="name">${drink.name}${drink.discount ? '<span class="discount-text"> (Oferta -10%)</span>' : ''}</span>
+            <span class="name">${drink.name}${(drink.discount && drink.discountEndTime > Date.now()) ? '<span class="discount-text"> (Oferta -10%)</span>' : ''}</span>
             <span class="price">€${displayPrice}</span>
             <span class="popularity">${drink.popularity}</span>
             <span class="price-change ${arrowClass}"></span>
@@ -112,7 +114,7 @@ function displayDrinks() {
 function addToCart(drinkId) {
     const drink = drinks.find(d => d.id === drinkId);
     if (drink) {
-        const cartItem = { ...drink, price: drink.discount ? drink.price * 0.9 : drink.price };
+        const cartItem = { ...drink, price: (drink.discount && drink.discountEndTime > Date.now()) ? drink.price * 0.9 : drink.price };
         cart.push(cartItem);
         updateCart();
         showNotification(`${drink.name} añadido al carrito`, 'success');
@@ -125,7 +127,7 @@ function updateCart() {
     let total = 0;
     cart.forEach((item, index) => {
         const li = document.createElement('li');
-        li.textContent = `${item.name}${item.discount ? ' (Oferta -10%)' : ''} - €${item.price.toFixed(2)}`;
+        li.textContent = `${item.name}${item.discount && item.discountEndTime > Date.now() ? ' (Oferta -10%)' : ''} - €${item.price.toFixed(2)}`;
         cartItems.appendChild(li);
         total += item.price;
     });
@@ -145,6 +147,7 @@ buyButton.addEventListener('click', () => {
         drink.prevPrice = drink.price;
         drink.price = drink.price * 1.05;
         drink.discount = false;
+        drink.discountEndTime = 0;
     });
 
     index += cart.length * 10;
@@ -170,7 +173,7 @@ function updateHistory() {
     historyList.innerHTML = '';
     history.forEach((trans, index) => {
         const li = document.createElement('li');
-        li.textContent = `Compra ${index + 1} (${trans.date}): ${trans.items.map(item => item.name + (item.discount ? ' (Oferta)' : '')).join(', ')} - Total: €${trans.total.toFixed(2)}`;
+        li.textContent = `Compra ${index + 1} (${trans.date}): ${trans.items.map(item => item.name + (item.discount && item.discountEndTime > Date.now() ? ' (Oferta)' : '')).join(', ')} - Total: €${trans.total.toFixed(2)}`;
         historyList.appendChild(li);
     });
 }
@@ -181,9 +184,9 @@ function simulateMarket() {
         drink.prevPrice = drink.price;
         const fluctuation = (Math.random() * 0.04 - 0.02);
         drink.price = Math.max(2, drink.price * (1 + fluctuation));
-        const wasDiscounted = drink.discount;
-        drink.discount = Math.random() < 0.02; // Probabilidad reducida a 2%
-        if (!wasDiscounted && drink.discount) {
+        if (!drink.discount && Math.random() < 0.02) { // Probabilidad 2%
+            drink.discount = true;
+            drink.discountEndTime = Date.now() + 180000; // 3 minutos
             showNotification(`¡Oferta flash en ${drink.name}! -10%`, 'info');
         }
     });
@@ -192,6 +195,22 @@ function simulateMarket() {
     displayDrinks();
     updateTicker();
     discountTime = 10; // Reinicia el temporizador de descuento
+}
+
+// Actualizar descuentos
+function updateDiscounts() {
+    let updated = false;
+    drinks.forEach(drink => {
+        if (drink.discount && drink.discountEndTime <= Date.now()) {
+            drink.discount = false;
+            drink.discountEndTime = 0;
+            updated = true;
+        }
+    });
+    if (updated) {
+        displayDrinks();
+        updateTicker();
+    }
 }
 
 // Actualizar índice y gráfico
@@ -232,6 +251,7 @@ function crashMarket() {
         drink.prevPrice = drink.price;
         drink.price = drink.price * 0.7;
         drink.discount = false;
+        drink.discountEndTime = 0;
     });
     index *= 0.6;
     updateIndex();
@@ -250,8 +270,8 @@ function updateTicker() {
         const span = document.createElement('span');
         span.classList.add('ticker-item');
         const arrowClass = drink.price > drink.prevPrice ? 'arrow-up' : drink.price < drink.prevPrice ? 'arrow-down' : '';
-        const displayPrice = drink.discount ? (drink.price * 0.9).toFixed(2) : drink.price.toFixed(2);
-        span.innerHTML = `${drink.name}${drink.discount ? ' (-10%)' : ''}: €${displayPrice} <span class="${arrowClass}"></span> | `;
+        const displayPrice = (drink.discount && drink.discountEndTime > Date.now()) ? (drink.price * 0.9).toFixed(2) : drink.price.toFixed(2);
+        span.innerHTML = `${drink.name}${(drink.discount && drink.discountEndTime > Date.now()) ? ' (-10%)' : ''}: €${displayPrice} <span class="${arrowClass}"></span> | `;
         tickerContent.appendChild(span);
     });
 }
@@ -275,3 +295,4 @@ updateTicker();
 setInterval(simulateMarket, 10000);
 setInterval(updateCrashTimer, 1000);
 setInterval(updateDiscountTimer, 1000);
+setInterval(updateDiscounts, 1000); // Verifica descuentos cada segundo
