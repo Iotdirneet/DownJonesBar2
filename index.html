@@ -13,12 +13,31 @@
         <div class="controls">
             <label><input type="checkbox" id="sound-toggle"> Activar sonido</label>
             <button id="theme-toggle">Cambiar Tema</button>
+            <button id="config-toggle">Configuración</button>
+        </div>
+        <div id="config-panel" class="config-panel hidden">
+            <h2>Configuración</h2>
+            <form id="config-form">
+                <label>Probabilidad de Descuento (%): <input type="number" id="discount-probability" min="0" max="100" step="0.1" value="2"></label>
+                <label>Porcentaje de Descuento (%): <input type="number" id="discount-percentage" min="0" max="100" step="1" value="10"></label>
+                <label>Duración de Ofertas (segundos): <input type="number" id="discount-duration" min="1" value="180"></label>
+                <label>Intervalo de Mercado (segundos): <input type="number" id="market-interval" min="1" value="10"></label>
+                <label>Tiempo hasta Crash (segundos): <input type="number" id="crash-time" min="1" value="300"></label>
+                <label>Caída en Crash (%): <input type="number" id="crash-percentage" min="0" max="100" step="1" value="30"></label>
+                <label>Fluctuación de Precios (%): <input type="number" id="price-fluctuation" min="0" step="0.1" value="2"></label>
+                <label>Aumento tras Compra (%): <input type="number" id="purchase-increase" min="0" step="0.1" value="5"></label>
+                <label>Incremento de Índice por Compra: <input type="number" id="index-increment" min="0" step="1" value="10"></label>
+                <label>Duración del Ticker (segundos): <input type="number" id="ticker-duration" min="1" value="80"></label>
+                <label>Tiempo de Notificación (segundos): <input type="number" id="notification-time" min="1" step="0.1" value="3"></label>
+                <button type="submit">Aplicar</button>
+                <button type="button" id="config-close">Cerrar</button>
+            </form>
         </div>
         <div class="index">
             <h2>Índice Down Jones: <span id="index-value">1000</span></h2>
             <canvas id="index-chart" width="200" height="100"></canvas>
             <p>Próximo Crash: <span id="crash-timer">5:00</span></p>
-            <p>Próximo Descuento: <span id="discount-timer">10% en Bebidas</span></p>
+            <p>Próximo Descuento: <span id="discount-timer">Esperando próxima oferta...</span></p>
         </div>
         <div class="drinks">
             <h2>Bebidas Disponibles</h2>

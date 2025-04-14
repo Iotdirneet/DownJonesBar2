@@ -20,7 +20,8 @@ body.light-theme h1 {
 body.light-theme .index, 
 body.light-theme .drinks, 
 body.light-theme .cart, 
-body.light-theme .history {
+body.light-theme .history,
+body.light-theme .config-panel {
     background: #fff;
     border-color: #ccc;
 }
@@ -35,13 +36,17 @@ body.light-theme .category h3 {
 }
 
 body.light-theme #buy-button,
-body.light-theme .drink-item button {
+body.light-theme .drink-item button,
+body.light-theme #config-toggle,
+body.light-theme #config-form button {
     background: #d32f2f;
     color: #fff;
 }
 
 body.light-theme #buy-button:hover,
-body.light-theme .drink-item button:hover {
+body.light-theme .drink-item button:hover,
+body.light-theme #config-toggle:hover,
+body.light-theme #config-form button:hover {
     background: #b71c1c;
 }
 
@@ -85,7 +90,8 @@ h1 {
     color: #e0e0e0;
 }
 
-#theme-toggle {
+#theme-toggle,
+#config-toggle {
     background: #ff4081;
     color: #fff;
     border: none;
@@ -94,8 +100,66 @@ h1 {
     cursor: pointer;
 }
 
-#theme-toggle:hover {
+#theme-toggle:hover,
+#config-toggle:hover {
     background: #f50057;
+}
+
+.config-panel {
+    background: #1c2526;
+    border: 1px solid #00ffcc;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+}
+
+.config-panel.hidden {
+    display: none;
+}
+
+.config-panel h2 {
+    font-size: 1.5em;
+    color: #ff4081;
+    margin-bottom: 20px;
+}
+
+#config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#config-form label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95em;
+}
+
+#config-form input {
+    width: 100px;
+    padding: 5px;
+    border: 1px solid #00ffcc;
+    border-radius: 5px;
+    background: #263238;
+    color: #e0e0e0;
+}
+
+#config-form button {
+    background: #00ffcc;
+    color: #000;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#config-form button:hover {
+    background: #00e6b3;
 }
 
 .index {
@@ -397,7 +461,6 @@ h1 {
     margin-bottom: 10px;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    animation: slideIn 0.3s ease-out, slideOut 0.3s ease-in 2.7s;
     max-width: 300px;
     font-size: 0.9em;
 }
@@ -501,5 +564,19 @@ h1 {
     .notification {
         font-size: 0.8em;
         padding: 10px 15px;
+    }
+
+    .config-panel {
+        padding: 10px;
+    }
+
+    #config-form label {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    #config-form input {
+        width: 100%;
     }
 }

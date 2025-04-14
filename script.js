@@ -29,8 +29,24 @@ let cart = [];
 let index = 1000;
 let history = [];
 let indexHistory = [1000];
-let crashTime = 300; // 5 minutos en segundos
 let soundEnabled = false;
+
+// Parámetros configurables
+let config = {
+    discountProbability: 0.02, // 2%
+    discountPercentage: 0.1, // 10%
+    discountDuration: 180000, // 3 minutos
+    marketInterval: 10000, // 10 segundos
+    crashTime: 300, // 5 minutos
+    crashPercentage: 0.3, // 30%
+    priceFluctuation: 0.02, // ±2%
+    purchaseIncrease: 0.05, // 5%
+    indexIncrement: 10, // 10 puntos
+    tickerDuration: 80, // 80 segundos
+    notificationTime: 3000 // 3 segundos
+};
+
+let marketIntervalId = null;
 
 // Elementos del DOM
 const cocktailsList = document.getElementById('cocktails-list');
@@ -49,6 +65,10 @@ const soundToggle = document.getElementById('sound-toggle');
 const themeToggle = document.getElementById('theme-toggle');
 const crashSound = document.getElementById('crash-sound');
 const notifications = document.getElementById('notifications');
+const configToggle = document.getElementById('config-toggle');
+const configPanel = document.getElementById('config-panel');
+const configForm = document.getElementById('config-form');
+const configClose = document.getElementById('config-close');
 
 // Gráfico con Chart.js
 const ctx = document.getElementById('index-chart').getContext('2d');
@@ -79,7 +99,8 @@ function showNotification(message, type = 'info') {
     notification.className = `notification ${type}`;
     notification.textContent = message;
     notifications.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
+    notification.style.animation = `slideIn 0.3s ease-out, slideOut 0.3s ease-in ${config.notificationTime - 300}ms forwards`;
+    setTimeout(() => notification.remove(), config.notificationTime);
 }
 
 // Mostrar bebidas por categoría
@@ -95,9 +116,9 @@ function displayDrinks() {
             drinkLi.classList.add('discount');
         }
         const arrowClass = drink.price > drink.prevPrice ? 'arrow-up' : drink.price < drink.prevPrice ? 'arrow-down' : '';
-        const displayPrice = (drink.discount && drink.discountEndTime > Date.now()) ? (drink.price * 0.9).toFixed(2) : drink.price.toFixed(2);
+        const displayPrice = (drink.discount && drink.discountEndTime > Date.now()) ? (drink.price * (1 - config.discountPercentage)).toFixed(2) : drink.price.toFixed(2);
         drinkLi.innerHTML = `
-            <span class="name">${drink.name}${(drink.discount && drink.discountEndTime > Date.now()) ? '<span class="discount-text"> (Oferta -10%)</span>' : ''}</span>
+            <span class="name">${drink.name}${(drink.discount && drink.discountEndTime > Date.now()) ? `<span class="discount-text"> (Oferta -${(config.discountPercentage * 100).toFixed(0)}%)</span>` : ''}</span>
             <span class="price">€${displayPrice}</span>
             <span class="popularity">${drink.popularity}</span>
             <span class="price-change ${arrowClass}"></span>
@@ -113,7 +134,7 @@ function displayDrinks() {
 function addToCart(drinkId) {
     const drink = drinks.find(d => d.id === drinkId);
     if (drink) {
-        const cartItem = { ...drink, price: (drink.discount && drink.discountEndTime > Date.now()) ? drink.price * 0.9 : drink.price };
+        const cartItem = { ...drink, price: (drink.discount && drink.discountEndTime > Date.now()) ? drink.price * (1 - config.discountPercentage) : drink.price };
         cart.push(cartItem);
         updateCart();
         showNotification(`${drink.name} añadido al carrito`, 'success');
@@ -126,7 +147,7 @@ function updateCart() {
     let total = 0;
     cart.forEach((item, index) => {
         const li = document.createElement('li');
-        li.textContent = `${item.name}${item.discount && item.discountEndTime > Date.now() ? ' (Oferta -10%)' : ''} - €${item.price.toFixed(2)}`;
+        li.textContent = `${item.name}${item.discount && item.discountEndTime > Date.now() ? ` (Oferta -${(config.discountPercentage * 100).toFixed(0)}%)` : ''} - €${item.price.toFixed(2)}`;
         cartItems.appendChild(li);
         total += item.price;
     });
@@ -144,12 +165,12 @@ buyButton.addEventListener('click', () => {
         const drink = drinks.find(d => d.id === item.id);
         drink.popularity += 1;
         drink.prevPrice = drink.price;
-        drink.price = drink.price * 1.05;
+        drink.price = drink.price * (1 + config.purchaseIncrease);
         drink.discount = false;
         drink.discountEndTime = 0;
     });
 
-    index += cart.length * 10;
+    index += cart.length * config.indexIncrement;
     updateIndex();
 
     const transaction = {
@@ -181,12 +202,12 @@ function updateHistory() {
 function simulateMarket() {
     drinks.forEach(drink => {
         drink.prevPrice = drink.price;
-        const fluctuation = (Math.random() * 0.04 - 0.02);
+        const fluctuation = (Math.random() * config.priceFluctuation * 2 - config.priceFluctuation);
         drink.price = Math.max(2, drink.price * (1 + fluctuation));
-        if (!drink.discount && Math.random() < 0.02) { // Probabilidad 2%
+        if (!drink.discount && Math.random() < config.discountProbability) {
             drink.discount = true;
-            drink.discountEndTime = Date.now() + 180000; // 3 minutos
-            showNotification(`¡Oferta flash en ${drink.name}! -10%`, 'info');
+            drink.discountEndTime = Date.now() + config.discountDuration;
+            showNotification(`¡Oferta flash en ${drink.name}! -${(config.discountPercentage * 100).toFixed(0)}%`, 'info');
         }
     });
     index = Math.max(500, index * (1 + (Math.random() * 0.02 - 0.01)));
@@ -223,13 +244,13 @@ function updateIndex() {
 
 // Temporizador de crash
 function updateCrashTimer() {
-    crashTime--;
-    const minutes = Math.floor(crashTime / 60);
-    const seconds = crashTime % 60;
+    config.crashTime--;
+    const minutes = Math.floor(config.crashTime / 60);
+    const seconds = config.crashTime % 60;
     crashTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    if (crashTime <= 0) {
+    if (config.crashTime <= 0) {
         crashMarket();
-        crashTime = 300;
+        config.crashTime = parseInt(document.getElementById('crash-time').value);
     }
 }
 
@@ -237,13 +258,12 @@ function updateCrashTimer() {
 function updateDiscountTimer() {
     const activeDiscounts = drinks.filter(drink => drink.discount && drink.discountEndTime > Date.now());
     if (activeDiscounts.length > 0) {
-        // Encuentra la oferta con el tiempo de expiración más reciente
         const latestDiscount = activeDiscounts.reduce((latest, drink) => 
             drink.discountEndTime > latest.discountEndTime ? drink : latest, activeDiscounts[0]);
         const timeLeft = Math.max(0, Math.floor((latestDiscount.discountEndTime - Date.now()) / 1000));
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
-        discountTimer.textContent = `10% en Bebidas (${minutes}:${seconds.toString().padStart(2, '0')})`;
+        discountTimer.textContent = `${(config.discountPercentage * 100).toFixed(0)}% en Bebidas (${minutes}:${seconds.toString().padStart(2, '0')})`;
         discountTimer.classList.remove('static');
     } else {
         discountTimer.textContent = 'Esperando próxima oferta...';
@@ -255,18 +275,18 @@ function updateDiscountTimer() {
 function crashMarket() {
     drinks.forEach(drink => {
         drink.prevPrice = drink.price;
-        drink.price = drink.price * 0.7;
+        drink.price = drink.price * (1 - config.crashPercentage);
         drink.discount = false;
         drink.discountEndTime = 0;
     });
-    index *= 0.6;
+    index *= (1 - config.crashPercentage);
     updateIndex();
     displayDrinks();
     updateTicker();
     indexSection.classList.add('crash');
     setTimeout(() => indexSection.classList.remove('crash'), 3000);
     if (soundEnabled && crashSound) crashSound.play().catch(() => {});
-    showNotification('¡Crash! Precios caídos un 30%.', 'error');
+    showNotification(`¡Crash! Precios caídos un ${(config.crashPercentage * 100).toFixed(0)}%.`, 'error');
 }
 
 // Actualizar ticker
@@ -276,10 +296,12 @@ function updateTicker() {
         const span = document.createElement('span');
         span.classList.add('ticker-item');
         const arrowClass = drink.price > drink.prevPrice ? 'arrow-up' : drink.price < drink.prevPrice ? 'arrow-down' : '';
-        const displayPrice = (drink.discount && drink.discountEndTime > Date.now()) ? (drink.price * 0.9).toFixed(2) : drink.price.toFixed(2);
-        span.innerHTML = `${drink.name}${(drink.discount && drink.discountEndTime > Date.now()) ? ' (-10%)' : ''}: €${displayPrice} <span class="${arrowClass}"></span> | `;
+        const displayPrice = (drink.discount && drink.discountEndTime > Date.now()) ? (drink.price * (1 - config.discountPercentage)).toFixed(2) : drink.price.toFixed(2);
+        span.innerHTML = `${drink.name}${(drink.discount && drink.discountEndTime > Date.now()) ? ` (-${(config.discountPercentage * 100).toFixed(0)}%)` : ''}: €${displayPrice} <span class="${arrowClass}"></span> | `;
         tickerContent.appendChild(span);
     });
+    // Actualizar duración del ticker
+    tickerContent.style.animationDuration = `${config.tickerDuration}s`;
 }
 
 // Alternar sonido
@@ -295,10 +317,44 @@ themeToggle.addEventListener('click', () => {
     indexChart.update();
 });
 
+// Configuración
+configToggle.addEventListener('click', () => {
+    configPanel.classList.toggle('hidden');
+});
+
+configClose.addEventListener('click', () => {
+    configPanel.classList.add('hidden');
+});
+
+configForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    config.discountProbability = parseFloat(document.getElementById('discount-probability').value) / 100;
+    config.discountPercentage = parseFloat(document.getElementById('discount-percentage').value) / 100;
+    config.discountDuration = parseInt(document.getElementById('discount-duration').value) * 1000;
+    config.marketInterval = parseInt(document.getElementById('market-interval').value) * 1000;
+    config.crashTime = parseInt(document.getElementById('crash-time').value);
+    config.crashPercentage = parseFloat(document.getElementById('crash-percentage').value) / 100;
+    config.priceFluctuation = parseFloat(document.getElementById('price-fluctuation').value) / 100;
+    config.purchaseIncrease = parseFloat(document.getElementById('purchase-increase').value) / 100;
+    config.indexIncrement = parseInt(document.getElementById('index-increment').value);
+    config.tickerDuration = parseInt(document.getElementById('ticker-duration').value);
+    config.notificationTime = parseFloat(document.getElementById('notification-time').value) * 1000;
+
+    // Reiniciar intervalo de mercado
+    if (marketIntervalId) clearInterval(marketIntervalId);
+    marketIntervalId = setInterval(simulateMarket, config.marketInterval);
+
+    // Actualizar interfaz
+    displayDrinks();
+    updateTicker();
+    showNotification('Configuración actualizada.', 'success');
+    configPanel.classList.add('hidden');
+});
+
 // Iniciar
 displayDrinks();
 updateTicker();
-setInterval(simulateMarket, 10000);
+marketIntervalId = setInterval(simulateMarket, config.marketInterval);
 setInterval(updateCrashTimer, 1000);
 setInterval(updateDiscountTimer, 1000);
 setInterval(updateDiscounts, 1000);
