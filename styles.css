@@ -50,6 +50,10 @@ body.light-theme .ticker {
     border-top-color: #666;
 }
 
+body.light-theme #discount-timer.static {
+    color: #666;
+}
+
 .container {
     max-width: 100%;
     margin: 0;
@@ -133,6 +137,11 @@ h1 {
 #discount-timer {
     color: #ff4081;
     font-weight: bold;
+}
+
+#discount-timer.static {
+    color: #999;
+    font-weight: normal;
 }
 
 .drinks {

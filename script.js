@@ -30,7 +30,6 @@ let index = 1000;
 let history = [];
 let indexHistory = [1000];
 let crashTime = 300; // 5 minutos en segundos
-let discountTime = 10; // Sincronizado con simulateMarket (10 segundos)
 let soundEnabled = false;
 
 // Elementos del DOM
@@ -194,7 +193,6 @@ function simulateMarket() {
     updateIndex();
     displayDrinks();
     updateTicker();
-    discountTime = 10; // Reinicia el temporizador de descuento
 }
 
 // Actualizar descuentos
@@ -237,11 +235,19 @@ function updateCrashTimer() {
 
 // Temporizador de descuento
 function updateDiscountTimer() {
-    discountTime--;
-    const seconds = discountTime % 60;
-    discountTimer.textContent = `10% en Bebidas (${seconds}s)`;
-    if (discountTime <= 0) {
-        discountTime = 10; // Reinicia cada 10 segundos, alineado con simulateMarket
+    const activeDiscounts = drinks.filter(drink => drink.discount && drink.discountEndTime > Date.now());
+    if (activeDiscounts.length > 0) {
+        // Encuentra la oferta con el tiempo de expiración más reciente
+        const latestDiscount = activeDiscounts.reduce((latest, drink) => 
+            drink.discountEndTime > latest.discountEndTime ? drink : latest, activeDiscounts[0]);
+        const timeLeft = Math.max(0, Math.floor((latestDiscount.discountEndTime - Date.now()) / 1000));
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        discountTimer.textContent = `10% en Bebidas (${minutes}:${seconds.toString().padStart(2, '0')})`;
+        discountTimer.classList.remove('static');
+    } else {
+        discountTimer.textContent = 'Esperando próxima oferta...';
+        discountTimer.classList.add('static');
     }
 }
 
@@ -295,4 +301,4 @@ updateTicker();
 setInterval(simulateMarket, 10000);
 setInterval(updateCrashTimer, 1000);
 setInterval(updateDiscountTimer, 1000);
-setInterval(updateDiscounts, 1000); // Verifica descuentos cada segundo
+setInterval(updateDiscounts, 1000);
