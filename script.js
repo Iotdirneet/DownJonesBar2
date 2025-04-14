@@ -1,113 +1,263 @@
+// Lista de bebidas con categorías
 const drinks = [
-    { name: "Mojito", category: "Cócteles", price: 8.00, lastPrice: 8.00 },
-    { name: "Margarita", category: "Cócteles", price: 9.00, lastPrice: 9.00 },
-    { name: "Piña Colada", category: "Cócteles", price: 8.50, lastPrice: 8.50 },
-    { name: "Daiquiri", category: "Cócteles", price: 7.50, lastPrice: 7.50 },
-    { name: "Caipirinha", category: "Cócteles", price: 8.00, lastPrice: 8.00 },
-    { name: "Negroni", category: "Cócteles", price: 9.50, lastPrice: 9.50 },
-    { name: "Cosmopolitan", category: "Cócteles", price: 8.80, lastPrice: 8.80 },
-    { name: "Old Fashioned", category: "Cócteles", price: 10.00, lastPrice: 10.00 },
-    { name: "Gin Tonic", category: "Cócteles", price: 7.00, lastPrice: 7.00 },
-    { name: "Martini", category: "Cócteles", price: 9.00, lastPrice: 9.00 },
-    { name: "Heineken", category: "Cervezas", price: 4.50, lastPrice: 4.50 },
-    { name: "Estrella Damm", category: "Cervezas", price: 4.00, lastPrice: 4.00 },
-    { name: "Corona", category: "Cervezas", price: 4.80, lastPrice: 4.80 },
-    { name: "Mahou", category: "Cervezas", price: 4.20, lastPrice: 4.20 },
-    { name: "IPA Local", category: "Cervezas", price: 5.00, lastPrice: 5.00 },
-    { name: "Limonada", category: "Sin Alcohol", price: 3.50, lastPrice: 3.50 },
-    { name: "Mojito Sin", category: "Sin Alcohol", price: 4.00, lastPrice: 4.00 },
-    { name: "Agua Tónica", category: "Sin Alcohol", price: 3.00, lastPrice: 3.00 },
-    { name: "Cola Zero", category: "Sin Alcohol", price: 3.20, lastPrice: 3.20 },
-    { name: "Smoothie de Frutas", category: "Sin Alcohol", price: 4.50, lastPrice: 4.50 }
+    // Cócteles
+    { id: 1, name: "Mojito", price: 8, popularity: 0, category: "cocktails", prevPrice: 8, discount: false },
+    { id: 2, name: "Caipirinha", price: 7, popularity: 0, category: "cocktails", prevPrice: 7, discount: false },
+    { id: 3, name: "Gin Tonic", price: 9, popularity: 0, category: "cocktails", prevPrice: 9, discount: false },
+    { id: 4, name: "Margarita", price: 8, popularity: 0, category: "cocktails", prevPrice: 8, discount: false },
+    { id: 5, name: "Negroni", price: 10, popularity: 0, category: "cocktails", prevPrice: 10, discount: false },
+    { id: 6, name: "Old Fashioned", price: 11, popularity: 0, category: "cocktails", prevPrice: 11, discount: false },
+    { id: 7, name: "Daiquiri", price: 8.5, popularity: 0, category: "cocktails", prevPrice: 8.5, discount: false },
+    // Cervezas
+    { id: 8, name: "Cerveza Artesanal", price: 5, popularity: 0, category: "beers", prevPrice: 5, discount: false },
+    { id: 9, name: "IPA", price: 6, popularity: 0, category: "beers", prevPrice: 6, discount: false },
+    { id: 10, name: "Lager", price: 4.5, popularity: 0, category: "beers", prevPrice: 4.5, discount: false },
+    { id: 11, name: "Stout", price: 6.5, popularity: 0, category: "beers", prevPrice: 6.5, discount: false },
+    { id: 12, name: "Pilsner", price: 5, popularity: 0, category: "beers", prevPrice: 5, discount: false },
+    { id: 13, name: "Weissbier", price: 5.5, popularity: 0, category: "beers", prevPrice: 5.5, discount: false },
+    // Sin Alcohol
+    { id: 14, name: "Limonada", price: 3, popularity: 0, category: "non-alcoholic", prevPrice: 3, discount: false },
+    { id: 15, name: "Mojito Sin", price: 4, popularity: 0, category: "non-alcoholic", prevPrice: 4, discount: false },
+    { id: 16, name: "Té Helado", price: 3.5, popularity: 0, category: "non-alcoholic", prevPrice: 3.5, discount: false },
+    { id: 17, name: "Agua Tónica", price: 2.5, popularity: 0, category: "non-alcoholic", prevPrice: 2.5, discount: false },
+    { id: 18, name: "Zumo Natural", price: 4, popularity: 0, category: "non-alcoholic", prevPrice: 4, discount: false },
+    { id: 19, name: "Kombucha", price: 4.5, popularity: 0, category: "non-alcoholic", prevPrice: 4.5, discount: false },
+    { id: 20, name: "Smoothie", price: 5, popularity: 0, category: "non-alcoholic", prevPrice: 5, discount: false }
 ];
 
-let crashTime = 15 * 60; // 15 minutos en segundos
+let cart = [];
+let index = 1000;
+let history = [];
+let indexHistory = [1000];
+let crashTime = 300; // 5 minutos en segundos
+let soundEnabled = false;
 
-function updateDrinksBoard() {
-    const board = document.getElementById('drinksBoard');
-    board.innerHTML = '';
+// Elementos del DOM
+const cocktailsList = document.getElementById('cocktails-list');
+const beersList = document.getElementById('beers-list');
+const nonAlcoholicList = document.getElementById('non-alcoholic-list');
+const cartItems = document.getElementById('cart-items');
+const cartTotal = document.getElementById('cart-total');
+const buyButton = document.getElementById('buy-button');
+const historyList = document.getElementById('history-list');
+const indexValue = document.getElementById('index-value');
+const crashTimer = document.getElementById('crash-timer');
+const tickerContent = document.getElementById('ticker-content');
+const indexSection = document.querySelector('.index');
+const soundToggle = document.getElementById('sound-toggle');
+const themeToggle = document.getElementById('theme-toggle');
+const crashSound = document.getElementById('crash-sound');
+const notifications = document.getElementById('notifications');
+
+// Gráfico con Chart.js
+const ctx = document.getElementById('index-chart').getContext('2d');
+const indexChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Índice Down Jones',
+            data: indexHistory,
+            borderColor: '#00ffcc',
+            backgroundColor: 'rgba(0, 255, 204, 0.1)',
+            fill: true,
+            tension: 0.1
+        }]
+    },
+    options: {
+        scales: {
+            x: { display: false },
+            y: { beginAtZero: false }
+        }
+    }
+});
+
+// Mostrar notificación
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notifications.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// Mostrar bebidas por categoría
+function displayDrinks() {
+    cocktailsList.innerHTML = '';
+    beersList.innerHTML = '';
+    nonAlcoholicList.innerHTML = '';
+
     drinks.forEach(drink => {
-        const item = document.createElement('div');
-        item.className = 'drink-item';
-        const arrow = drink.price > drink.lastPrice ? '▲' : drink.price < drink.lastPrice ? '▼' : '';
-        const arrowClass = drink.price > drink.lastPrice ? 'arrow-up' : drink.price < drink.lastPrice ? 'arrow-down' : '';
-        item.innerHTML = `
-            <span class="drink-name">${drink.name} (${drink.category})</span>
-            <span class="drink-price">€${drink.price.toFixed(2)} <span class="${arrowClass}">${arrow}</span></span>
+        const drinkLi = document.createElement('li');
+        drinkLi.classList.add('drink-item');
+        if (drink.discount) drinkLi.classList.add('discount');
+        const arrowClass = drink.price > drink.prevPrice ? 'arrow-up' : drink.price < drink.prevPrice ? 'arrow-down' : '';
+        const displayPrice = drink.discount ? (drink.price * 0.8).toFixed(2) : drink.price.toFixed(2);
+        drinkLi.innerHTML = `
+            <span class="name">${drink.name}${drink.discount ? '<span class="discount-text"> (Oferta -20%)</span>' : ''}</span>
+            <span class="price">€${displayPrice}</span>
+            <span class="popularity">${drink.popularity}</span>
+            <span class="price-change ${arrowClass}"></span>
+            <button onclick="addToCart(${drink.id})">Añadir</button>
         `;
-        board.appendChild(item);
+        if (drink.category === 'cocktails') cocktailsList.appendChild(drinkLi);
+        else if (drink.category === 'beers') beersList.appendChild(drinkLi);
+        else nonAlcoholicList.appendChild(drinkLi);
     });
 }
 
-function updateTicker() {
-    const ticker = document.getElementById('tickerContent');
-    ticker.innerHTML = drinks.map(d => {
-        const arrow = d.price > d.lastPrice ? '▲' : d.price < d.lastPrice ? '▼' : '';
-        const arrowClass = d.price > d.lastPrice ? 'arrow-up' : d.price < d.lastPrice ? 'arrow-down' : '';
-        return `${d.name}: €${d.price.toFixed(2)} <span class="${arrowClass}">${arrow}</span>`;
-    }).join(' | ');
-}
-
-function updateSelect() {
-    const select = document.getElementById('drinkSelect');
-    select.innerHTML = drinks.map(d => `<option value="${d.name}">${d.name} - €${d.price.toFixed(2)}</option>`).join('');
-}
-
-function fluctuatePrices() {
-    drinks.forEach(drink => {
-        drink.lastPrice = drink.price;
-        const change = (Math.random() * 0.04 - 0.02) * drink.price; // ±2%
-        drink.price = Math.max(1, (drink.price + change)).toFixed(2);
-    });
-    updateDrinksBoard();
-    updateTicker();
-    updateSelect();
-}
-
-function buyDrink() {
-    const select = document.getElementById('drinkSelect');
-    const drink = drinks.find(d => d.name === select.value);
+// Añadir al carrito
+function addToCart(drinkId) {
+    const drink = drinks.find(d => d.id === drinkId);
     if (drink) {
-        drink.lastPrice = drink.price;
-        drink.price = (drink.price * 1.02).toFixed(2); // +2% por compra
-        updateDrinksBoard();
-        updateTicker();
-        updateSelect();
-        showNotification(`¡Compraste ${drink.name} por €${drink.price}!`);
+        const cartItem = { ...drink, price: drink.discount ? drink.price * 0.8 : drink.price };
+        cart.push(cartItem);
+        updateCart();
+        showNotification(`${drink.name} añadido al carrito`, 'success');
     }
 }
 
-function showNotification(message) {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.classList.add('show');
-    setTimeout(() => notification.classList.remove('show'), 3000);
-}
-
-function crashMarket() {
-    drinks.forEach(drink => {
-        drink.lastPrice = drink.price;
-        drink.price = (drink.price * 0.7).toFixed(2); // -30%
+// Actualizar carrito
+function updateCart() {
+    cartItems.innerHTML = '';
+    let total = 0;
+    cart.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name}${item.discount ? ' (Oferta -20%)' : ''} - €${item.price.toFixed(2)}`;
+        cartItems.appendChild(li);
+        total += item.price;
     });
-    updateDrinksBoard();
-    updateTicker();
-    updateSelect();
-    showNotification('¡CRASH DEL MERCADO! Todos los precios caen un 30%.');
-    crashTime = 15 * 60;
+    cartTotal.textContent = total.toFixed(2);
 }
 
+// Comprar bebidas
+buyButton.addEventListener('click', () => {
+    if (cart.length === 0) {
+        showNotification('El pedido está vacío.', 'error');
+        return;
+    }
+
+    cart.forEach(item => {
+        const drink = drinks.find(d => d.id === item.id);
+        drink.popularity += 1;
+        drink.prevPrice = drink.price;
+        drink.price = drink.price * 1.05;
+        drink.discount = false;
+    });
+
+    index += cart.length * 10;
+    updateIndex();
+
+    const transaction = {
+        items: [...cart],
+        total: cart.reduce((sum, item) => sum + item.price, 0),
+        date: new Date().toLocaleString()
+    };
+    history.push(transaction);
+
+    showNotification(`Compra realizada por €${transaction.total.toFixed(2)}!`, 'success');
+    updateHistory();
+    cart = [];
+    updateCart();
+    displayDrinks();
+    updateTicker();
+});
+
+// Actualizar historial
+function updateHistory() {
+    historyList.innerHTML = '';
+    history.forEach((trans, index) => {
+        const li = document.createElement('li');
+        li.textContent = `Compra ${index + 1} (${trans.date}): ${trans.items.map(item => item.name + (item.discount ? ' (Oferta)' : '')).join(', ')} - Total: €${trans.total.toFixed(2)}`;
+        historyList.appendChild(li);
+    });
+}
+
+// Simular mercado
+function simulateMarket() {
+    drinks.forEach(drink => {
+        drink.prevPrice = drink.price;
+        const fluctuation = (Math.random() * 0.04 - 0.02);
+        drink.price = Math.max(2, drink.price * (1 + fluctuation));
+        const wasDiscounted = drink.discount;
+        drink.discount = Math.random() < 0.05;
+        if (!wasDiscounted && drink.discount) {
+            showNotification(`¡Oferta flash en ${drink.name}! -20%`, 'info');
+        }
+    });
+    index = Math.max(500, index * (1 + (Math.random() * 0.02 - 0.01)));
+    updateIndex();
+    displayDrinks();
+    updateTicker();
+}
+
+// Actualizar índice y gráfico
+function updateIndex() {
+    indexValue.textContent = index.toFixed(2);
+    indexHistory.push(index);
+    if (indexHistory.length > 50) indexHistory.shift();
+    indexChart.data.labels = Array(indexHistory.length).fill('').map((_, i) => i);
+    indexChart.data.datasets[0].data = indexHistory;
+    indexChart.update();
+}
+
+// Temporizador de crash
 function updateCrashTimer() {
     crashTime--;
     const minutes = Math.floor(crashTime / 60);
     const seconds = crashTime % 60;
-    document.getElementById('crashTimer').textContent = `Próximo crash en: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    crashTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     if (crashTime <= 0) {
         crashMarket();
+        crashTime = 300;
     }
 }
 
-setInterval(fluctuatePrices, 120000); // Fluctuaciones cada 120 segundos
-setInterval(updateCrashTimer, 1000); // Actualizar temporizador cada segundo
-updateDrinksBoard();
+// Crash del mercado
+function crashMarket() {
+    drinks.forEach(drink => {
+        drink.prevPrice = drink.price;
+        drink.price = drink.price * 0.7;
+        drink.discount = false;
+    });
+    index *= 0.6;
+    updateIndex();
+    displayDrinks();
+    updateTicker();
+    indexSection.classList.add('crash');
+    setTimeout(() => indexSection.classList.remove('crash'), 3000);
+    if (soundEnabled && crashSound) crashSound.play().catch(() => {});
+    showNotification('¡Crash! Precios caídos un 30%.', 'error');
+}
+
+// Actualizar ticker
+function updateTicker() {
+    tickerContent.innerHTML = '';
+    drinks.forEach(drink => {
+        const span = document.createElement('span');
+        span.classList.add('ticker-item');
+        const arrowClass = drink.price > drink.prevPrice ? 'arrow-up' : drink.price < drink.prevPrice ? 'arrow-down' : '';
+        const displayPrice = drink.discount ? (drink.price * 0.8).toFixed(2) : drink.price.toFixed(2);
+        span.innerHTML = `${drink.name}${drink.discount ? ' (-20%)' : ''}: €${displayPrice} <span class="${arrowClass}"></span> | `;
+        tickerContent.appendChild(span);
+    });
+}
+
+// Alternar sonido
+soundToggle.addEventListener('change', () => {
+    soundEnabled = soundToggle.checked;
+});
+
+// Alternar tema
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('light-theme');
+    indexChart.data.datasets[0].borderColor = document.body.classList.contains('light-theme') ? '#d32f2f' : '#00ffcc';
+    indexChart.data.datasets[0].backgroundColor = document.body.classList.contains('light-theme') ? 'rgba(211, 47, 47, 0.1)' : 'rgba(0, 255, 204, 0.1)';
+    indexChart.update();
+});
+
+// Iniciar
+displayDrinks();
 updateTicker();
-updateSelect();
+setInterval(simulateMarket, 10000);
+setInterval(updateCrashTimer, 1000);

@@ -3,22 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bolsa de Bebidas - Down Jones Bar</title>
+    <title>Bar Down Jones - Simulador de Bolsa</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
-        <div class="crash-timer" id="crashTimer">Próximo crash en: 15:00</div>
-        <div class="drinks-board" id="drinksBoard"></div>
-        <div class="order-panel">
-            <select id="drinkSelect"></select>
-            <button onclick="buyDrink()">Comprar</button>
+        <h1>Bar Down Jones</h1>
+        <div class="controls">
+            <label><input type="checkbox" id="sound-toggle"> Activar sonido</label>
+            <button id="theme-toggle">Cambiar Tema</button>
+        </div>
+        <div class="index">
+            <h2>Índice Down Jones: <span id="index-value">1000</span></h2>
+            <canvas id="index-chart" width="200" height="100"></canvas>
+            <p>Próximo Crash: <span id="crash-timer">5:00</span></p>
+        </div>
+        <div class="drinks">
+            <h2>Bebidas Disponibles</h2>
+            <div class="categories">
+                <div class="category">
+                    <h3>Cócteles</h3>
+                    <ul id="cocktails-list" class="drinks-list"></ul>
+                </div>
+                <div class="category">
+                    <h3>Cervezas</h3>
+                    <ul id="beers-list" class="drinks-list"></ul>
+                </div>
+                <div class="category">
+                    <h3>Sin Alcohol</h3>
+                    <ul id="non-alcoholic-list" class="drinks-list"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-section">
+            <div class="cart">
+                <h2>Tu Pedido</h2>
+                <ul id="cart-items"></ul>
+                <p>Total: €<span id="cart-total">0</span></p>
+                <button id="buy-button">Comprar</button>
+            </div>
+            <div class="history">
+                <h2>Historial de Transacciones</h2>
+                <ul id="history-list"></ul>
+            </div>
         </div>
         <div class="ticker">
-            <div class="ticker-content" id="tickerContent"></div>
+            <div id="ticker-content"></div>
         </div>
-        <div class="notification" id="notification"></div>
+        <div id="notifications"></div>
     </div>
+    <audio id="crash-sound" src="https://www.soundjay.com/buttons/beep-01a.mp3"></audio>
     <script src="script.js"></script>
 </body>
 </html>
