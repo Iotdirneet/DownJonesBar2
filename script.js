@@ -30,6 +30,7 @@ let index = 1000;
 let history = [];
 let indexHistory = [1000];
 let crashTime = 300; // 5 minutos en segundos
+let discountTime = 10; // Sincronizado con simulateMarket (10 segundos)
 let soundEnabled = false;
 
 // Elementos del DOM
@@ -42,6 +43,7 @@ const buyButton = document.getElementById('buy-button');
 const historyList = document.getElementById('history-list');
 const indexValue = document.getElementById('index-value');
 const crashTimer = document.getElementById('crash-timer');
+const discountTimer = document.getElementById('discount-timer');
 const tickerContent = document.getElementById('ticker-content');
 const indexSection = document.querySelector('.index');
 const soundToggle = document.getElementById('sound-toggle');
@@ -92,9 +94,9 @@ function displayDrinks() {
         drinkLi.classList.add('drink-item');
         if (drink.discount) drinkLi.classList.add('discount');
         const arrowClass = drink.price > drink.prevPrice ? 'arrow-up' : drink.price < drink.prevPrice ? 'arrow-down' : '';
-        const displayPrice = drink.discount ? (drink.price * 0.8).toFixed(2) : drink.price.toFixed(2);
+        const displayPrice = drink.discount ? (drink.price * 0.9).toFixed(2) : drink.price.toFixed(2);
         drinkLi.innerHTML = `
-            <span class="name">${drink.name}${drink.discount ? '<span class="discount-text"> (Oferta -20%)</span>' : ''}</span>
+            <span class="name">${drink.name}${drink.discount ? '<span class="discount-text"> (Oferta -10%)</span>' : ''}</span>
             <span class="price">€${displayPrice}</span>
             <span class="popularity">${drink.popularity}</span>
             <span class="price-change ${arrowClass}"></span>
@@ -110,7 +112,7 @@ function displayDrinks() {
 function addToCart(drinkId) {
     const drink = drinks.find(d => d.id === drinkId);
     if (drink) {
-        const cartItem = { ...drink, price: drink.discount ? drink.price * 0.8 : drink.price };
+        const cartItem = { ...drink, price: drink.discount ? drink.price * 0.9 : drink.price };
         cart.push(cartItem);
         updateCart();
         showNotification(`${drink.name} añadido al carrito`, 'success');
@@ -123,7 +125,7 @@ function updateCart() {
     let total = 0;
     cart.forEach((item, index) => {
         const li = document.createElement('li');
-        li.textContent = `${item.name}${item.discount ? ' (Oferta -20%)' : ''} - €${item.price.toFixed(2)}`;
+        li.textContent = `${item.name}${item.discount ? ' (Oferta -10%)' : ''} - €${item.price.toFixed(2)}`;
         cartItems.appendChild(li);
         total += item.price;
     });
@@ -180,15 +182,16 @@ function simulateMarket() {
         const fluctuation = (Math.random() * 0.04 - 0.02);
         drink.price = Math.max(2, drink.price * (1 + fluctuation));
         const wasDiscounted = drink.discount;
-        drink.discount = Math.random() < 0.05;
+        drink.discount = Math.random() < 0.02; // Probabilidad reducida a 2%
         if (!wasDiscounted && drink.discount) {
-            showNotification(`¡Oferta flash en ${drink.name}! -20%`, 'info');
+            showNotification(`¡Oferta flash en ${drink.name}! -10%`, 'info');
         }
     });
     index = Math.max(500, index * (1 + (Math.random() * 0.02 - 0.01)));
     updateIndex();
     displayDrinks();
     updateTicker();
+    discountTime = 10; // Reinicia el temporizador de descuento
 }
 
 // Actualizar índice y gráfico
@@ -210,6 +213,16 @@ function updateCrashTimer() {
     if (crashTime <= 0) {
         crashMarket();
         crashTime = 300;
+    }
+}
+
+// Temporizador de descuento
+function updateDiscountTimer() {
+    discountTime--;
+    const seconds = discountTime % 60;
+    discountTimer.textContent = `10% en Bebidas (${seconds}s)`;
+    if (discountTime <= 0) {
+        discountTime = 10; // Reinicia cada 10 segundos, alineado con simulateMarket
     }
 }
 
@@ -237,8 +250,8 @@ function updateTicker() {
         const span = document.createElement('span');
         span.classList.add('ticker-item');
         const arrowClass = drink.price > drink.prevPrice ? 'arrow-up' : drink.price < drink.prevPrice ? 'arrow-down' : '';
-        const displayPrice = drink.discount ? (drink.price * 0.8).toFixed(2) : drink.price.toFixed(2);
-        span.innerHTML = `${drink.name}${drink.discount ? ' (-20%)' : ''}: €${displayPrice} <span class="${arrowClass}"></span> | `;
+        const displayPrice = drink.discount ? (drink.price * 0.9).toFixed(2) : drink.price.toFixed(2);
+        span.innerHTML = `${drink.name}${drink.discount ? ' (-10%)' : ''}: €${displayPrice} <span class="${arrowClass}"></span> | `;
         tickerContent.appendChild(span);
     });
 }
@@ -261,3 +274,4 @@ displayDrinks();
 updateTicker();
 setInterval(simulateMarket, 10000);
 setInterval(updateCrashTimer, 1000);
+setInterval(updateDiscountTimer, 1000);
