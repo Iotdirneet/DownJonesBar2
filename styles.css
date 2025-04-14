@@ -59,6 +59,42 @@ body.light-theme #discount-timer.static {
     color: #666;
 }
 
+body.client-mode .admin-only {
+    display: none;
+}
+
+body.client-mode .index {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+body.client-mode .drinks {
+    margin: 20px auto;
+}
+
+body.client-mode .drink-item {
+    font-size: 1.2em;
+    padding: 15px;
+}
+
+body.client-mode .category h3 {
+    font-size: 1.8em;
+}
+
+body.client-mode .discount-info {
+    font-size: 1.5em;
+}
+
+body.client-mode #discount-timer {
+    font-size: 1.5em;
+}
+
+body.client-mode .ticker {
+    padding: 15px;
+    font-size: 1.2em;
+}
+
 .container {
     max-width: 100%;
     margin: 0;

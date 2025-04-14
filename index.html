@@ -10,12 +10,12 @@
 <body>
     <div class="container">
         <h1>Bar Down Jones</h1>
-        <div class="controls">
+        <div class="controls admin-only">
             <label><input type="checkbox" id="sound-toggle"> Activar sonido</label>
             <button id="theme-toggle">Cambiar Tema</button>
             <button id="config-toggle">Configuración</button>
         </div>
-        <div id="config-panel" class="config-panel hidden">
+        <div id="config-panel" class="config-panel hidden admin-only">
             <h2>Configuración</h2>
             <form id="config-form">
                 <label>Probabilidad de Descuento (%): <input type="number" id="discount-probability" min="0" max="100" step="0.1" value="2"></label>
@@ -35,9 +35,9 @@
         </div>
         <div class="index">
             <h2>Índice Down Jones: <span id="index-value">1000</span></h2>
-            <canvas id="index-chart" width="200" height="100"></canvas>
+            <canvas id="index-chart" width="200" height="100" class="admin-only"></canvas>
             <p>Próximo Crash: <span id="crash-timer">5:00</span></p>
-            <p>Próximo Descuento: <span id="discount-timer">Esperando próxima oferta...</span></p>
+            <p class="discount-info">Próximo Descuento: <span id="discount-timer">Esperando próxima oferta...</span></p>
         </div>
         <div class="drinks">
             <h2>Bebidas Disponibles</h2>
@@ -56,7 +56,7 @@
                 </div>
             </div>
         </div>
-        <div class="bottom-section">
+        <div class="bottom-section admin-only">
             <div class="cart">
                 <h2>Tu Pedido</h2>
                 <ul id="cart-items"></ul>

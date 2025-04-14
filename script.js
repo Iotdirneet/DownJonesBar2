@@ -31,6 +31,14 @@ let history = [];
 let indexHistory = [1000];
 let soundEnabled = false;
 
+// Determinar modo desde la URL
+const urlParams = new URLSearchParams(window.location.search);
+const mode = urlParams.get('mode') || 'admin';
+document.body.classList.add(mode + '-mode');
+
+const isAdmin = mode === 'admin';
+const isClient = mode === 'client';
+
 // Parámetros configurables
 let config = {
     discountProbability: 0.02, // 2%
@@ -47,6 +55,45 @@ let config = {
 };
 
 let marketIntervalId = null;
+
+// Cargar configuración desde localStorage
+function loadConfig() {
+    const savedConfig = localStorage.getItem('barConfig');
+    if (savedConfig) {
+        config = JSON.parse(savedConfig);
+        if (isAdmin) {
+            document.getElementById('discount-probability').value = config.discountProbability * 100;
+            document.getElementById('discount-percentage').value = config.discountPercentage * 100;
+            document.getElementById('discount-duration').value = config.discountDuration / 1000;
+            document.getElementById('market-interval').value = config.marketInterval / 1000;
+            document.getElementById('crash-time').value = config.crashTime;
+            document.getElementById('crash-percentage').value = config.crashPercentage * 100;
+            document.getElementById('price-fluctuation').value = config.priceFluctuation * 100;
+            document.getElementById('purchase-increase').value = config.purchaseIncrease * 100;
+            document.getElementById('index-increment').value = config.indexIncrement;
+            document.getElementById('ticker-duration').value = config.tickerDuration;
+            document.getElementById('notification-time').value = config.notificationTime / 1000;
+        }
+    }
+}
+
+// Guardar configuración en localStorage
+function saveConfig() {
+    localStorage.setItem('barConfig', JSON.stringify(config));
+}
+
+// Cargar bebidas desde localStorage
+function loadDrinks() {
+    const savedDrinks = localStorage.getItem('barDrinks');
+    if (savedDrinks) {
+        Object.assign(drinks, JSON.parse(savedDrinks));
+    }
+}
+
+// Guardar bebidas en localStorage
+function saveDrinks() {
+    localStorage.setItem('barDrinks', JSON.stringify(drinks));
+}
 
 // Elementos del DOM
 const cocktailsList = document.getElementById('cocktails-list');
@@ -70,28 +117,31 @@ const configPanel = document.getElementById('config-panel');
 const configForm = document.getElementById('config-form');
 const configClose = document.getElementById('config-close');
 
-// Gráfico con Chart.js
-const ctx = document.getElementById('index-chart').getContext('2d');
-const indexChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Índice Down Jones',
-            data: indexHistory,
-            borderColor: '#00ffcc',
-            backgroundColor: 'rgba(0, 255, 204, 0.1)',
-            fill: true,
-            tension: 0.1
-        }]
-    },
-    options: {
-        scales: {
-            x: { display: false },
-            y: { beginAtZero: false }
+// Gráfico con Chart.js (solo admin)
+let indexChart;
+if (isAdmin) {
+    const ctx = document.getElementById('index-chart').getContext('2d');
+    indexChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Índice Down Jones',
+                data: indexHistory,
+                borderColor: '#00ffcc',
+                backgroundColor: 'rgba(0, 255, 204, 0.1)',
+                fill: true,
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                x: { display: false },
+                y: { beginAtZero: false }
+            }
         }
-    }
-});
+    });
+}
 
 // Mostrar notificación
 function showNotification(message, type = 'info') {
@@ -101,6 +151,7 @@ function showNotification(message, type = 'info') {
     notifications.appendChild(notification);
     notification.style.animation = `slideIn 0.3s ease-out, slideOut 0.3s ease-in ${config.notificationTime - 300}ms forwards`;
     setTimeout(() => notification.remove(), config.notificationTime);
+    if (isAdmin) saveDrinks();
 }
 
 // Mostrar bebidas por categoría
@@ -122,7 +173,7 @@ function displayDrinks() {
             <span class="price">€${displayPrice}</span>
             <span class="popularity">${drink.popularity}</span>
             <span class="price-change ${arrowClass}"></span>
-            <button onclick="addToCart(${drink.id})">Añadir</button>
+            ${isAdmin ? `<button onclick="addToCart(${drink.id})">Añadir</button>` : ''}
         `;
         if (drink.category === 'cocktails') cocktailsList.appendChild(drinkLi);
         else if (drink.category === 'beers') beersList.appendChild(drinkLi);
@@ -130,8 +181,9 @@ function displayDrinks() {
     });
 }
 
-// Añadir al carrito
+// Añadir al carrito (solo admin)
 function addToCart(drinkId) {
+    if (!isAdmin) return;
     const drink = drinks.find(d => d.id === drinkId);
     if (drink) {
         const cartItem = { ...drink, price: (drink.discount && drink.discountEndTime > Date.now()) ? drink.price * (1 - config.discountPercentage) : drink.price };
@@ -141,8 +193,9 @@ function addToCart(drinkId) {
     }
 }
 
-// Actualizar carrito
+// Actualizar carrito (solo admin)
 function updateCart() {
+    if (!isAdmin) return;
     cartItems.innerHTML = '';
     let total = 0;
     cart.forEach((item, index) => {
@@ -154,42 +207,46 @@ function updateCart() {
     cartTotal.textContent = total.toFixed(2);
 }
 
-// Comprar bebidas
-buyButton.addEventListener('click', () => {
-    if (cart.length === 0) {
-        showNotification('El pedido está vacío.', 'error');
-        return;
-    }
+// Comprar bebidas (solo admin)
+if (isAdmin && buyButton) {
+    buyButton.addEventListener('click', () => {
+        if (cart.length === 0) {
+            showNotification('El pedido está vacío.', 'error');
+            return;
+        }
 
-    cart.forEach(item => {
-        const drink = drinks.find(d => d.id === item.id);
-        drink.popularity += 1;
-        drink.prevPrice = drink.price;
-        drink.price = drink.price * (1 + config.purchaseIncrease);
-        drink.discount = false;
-        drink.discountEndTime = 0;
+        cart.forEach(item => {
+            const drink = drinks.find(d => d.id === item.id);
+            drink.popularity += 1;
+            drink.prevPrice = drink.price;
+            drink.price = drink.price * (1 + config.purchaseIncrease);
+            drink.discount = false;
+            drink.discountEndTime = 0;
+        });
+
+        index += cart.length * config.indexIncrement;
+        updateIndex();
+
+        const transaction = {
+            items: [...cart],
+            total: cart.reduce((sum, item) => sum + item.price, 0),
+            date: new Date().toLocaleString()
+        };
+        history.push(transaction);
+
+        showNotification(`Compra realizada por €${transaction.total.toFixed(2)}!`, 'success');
+        updateHistory();
+        cart = [];
+        updateCart();
+        displayDrinks();
+        updateTicker();
+        saveDrinks();
     });
+}
 
-    index += cart.length * config.indexIncrement;
-    updateIndex();
-
-    const transaction = {
-        items: [...cart],
-        total: cart.reduce((sum, item) => sum + item.price, 0),
-        date: new Date().toLocaleString()
-    };
-    history.push(transaction);
-
-    showNotification(`Compra realizada por €${transaction.total.toFixed(2)}!`, 'success');
-    updateHistory();
-    cart = [];
-    updateCart();
-    displayDrinks();
-    updateTicker();
-});
-
-// Actualizar historial
+// Actualizar historial (solo admin)
 function updateHistory() {
+    if (!isAdmin) return;
     historyList.innerHTML = '';
     history.forEach((trans, index) => {
         const li = document.createElement('li');
@@ -214,6 +271,7 @@ function simulateMarket() {
     updateIndex();
     displayDrinks();
     updateTicker();
+    saveDrinks();
 }
 
 // Actualizar descuentos
@@ -229,17 +287,20 @@ function updateDiscounts() {
     if (updated) {
         displayDrinks();
         updateTicker();
+        saveDrinks();
     }
 }
 
-// Actualizar índice y gráfico
+// Actualizar índice y gráfico (gráfico solo admin)
 function updateIndex() {
     indexValue.textContent = index.toFixed(2);
-    indexHistory.push(index);
-    if (indexHistory.length > 50) indexHistory.shift();
-    indexChart.data.labels = Array(indexHistory.length).fill('').map((_, i) => i);
-    indexChart.data.datasets[0].data = indexHistory;
-    indexChart.update();
+    if (isAdmin) {
+        indexHistory.push(index);
+        if (indexHistory.length > 50) indexHistory.shift();
+        indexChart.data.labels = Array(indexHistory.length).fill('').map((_, i) => i);
+        indexChart.data.datasets[0].data = indexHistory;
+        indexChart.update();
+    }
 }
 
 // Temporizador de crash
@@ -250,7 +311,7 @@ function updateCrashTimer() {
     crashTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     if (config.crashTime <= 0) {
         crashMarket();
-        config.crashTime = parseInt(document.getElementById('crash-time').value);
+        config.crashTime = isAdmin ? parseInt(document.getElementById('crash-time').value) : config.crashTime;
     }
 }
 
@@ -285,7 +346,7 @@ function crashMarket() {
     updateTicker();
     indexSection.classList.add('crash');
     setTimeout(() => indexSection.classList.remove('crash'), 3000);
-    if (soundEnabled && crashSound) crashSound.play().catch(() => {});
+    if (isAdmin && soundEnabled && crashSound) crashSound.play().catch(() => {});
     showNotification(`¡Crash! Precios caídos un ${(config.crashPercentage * 100).toFixed(0)}%.`, 'error');
 }
 
@@ -300,58 +361,89 @@ function updateTicker() {
         span.innerHTML = `${drink.name}${(drink.discount && drink.discountEndTime > Date.now()) ? ` (-${(config.discountPercentage * 100).toFixed(0)}%)` : ''}: €${displayPrice} <span class="${arrowClass}"></span> | `;
         tickerContent.appendChild(span);
     });
-    // Actualizar duración del ticker
     tickerContent.style.animationDuration = `${config.tickerDuration}s`;
 }
 
-// Alternar sonido
-soundToggle.addEventListener('change', () => {
-    soundEnabled = soundToggle.checked;
-});
+// Alternar sonido (solo admin)
+if (isAdmin && soundToggle) {
+    soundToggle.addEventListener('change', () => {
+        soundEnabled = soundToggle.checked;
+    });
+}
 
-// Alternar tema
-themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('light-theme');
-    indexChart.data.datasets[0].borderColor = document.body.classList.contains('light-theme') ? '#d32f2f' : '#00ffcc';
-    indexChart.data.datasets[0].backgroundColor = document.body.classList.contains('light-theme') ? 'rgba(211, 47, 47, 0.1)' : 'rgba(0, 255, 204, 0.1)';
-    indexChart.update();
-});
+// Alternar tema (solo admin)
+if (isAdmin && themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        if (indexChart) {
+            indexChart.data.datasets[0].borderColor = document.body.classList.contains('light-theme') ? '#d32f2f' : '#00ffcc';
+            indexChart.data.datasets[0].backgroundColor = document.body.classList.contains('light-theme') ? 'rgba(211, 47, 47, 0.1)' : 'rgba(0, 255, 204, 0.1)';
+            indexChart.update();
+        }
+    });
+}
 
-// Configuración
-configToggle.addEventListener('click', () => {
-    configPanel.classList.toggle('hidden');
-});
+// Configuración (solo admin)
+if (isAdmin && configToggle) {
+    configToggle.addEventListener('click', () => {
+        configPanel.classList.toggle('hidden');
+    });
+}
 
-configClose.addEventListener('click', () => {
-    configPanel.classList.add('hidden');
-});
+if (isAdmin && configClose) {
+    configClose.addEventListener('click', () => {
+        configPanel.classList.add('hidden');
+    });
+}
 
-configForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    config.discountProbability = parseFloat(document.getElementById('discount-probability').value) / 100;
-    config.discountPercentage = parseFloat(document.getElementById('discount-percentage').value) / 100;
-    config.discountDuration = parseInt(document.getElementById('discount-duration').value) * 1000;
-    config.marketInterval = parseInt(document.getElementById('market-interval').value) * 1000;
-    config.crashTime = parseInt(document.getElementById('crash-time').value);
-    config.crashPercentage = parseFloat(document.getElementById('crash-percentage').value) / 100;
-    config.priceFluctuation = parseFloat(document.getElementById('price-fluctuation').value) / 100;
-    config.purchaseIncrease = parseFloat(document.getElementById('purchase-increase').value) / 100;
-    config.indexIncrement = parseInt(document.getElementById('index-increment').value);
-    config.tickerDuration = parseInt(document.getElementById('ticker-duration').value);
-    config.notificationTime = parseFloat(document.getElementById('notification-time').value) * 1000;
+if (isAdmin && configForm) {
+    configForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        config.discountProbability = parseFloat(document.getElementById('discount-probability').value) / 100;
+        config.discountPercentage = parseFloat(document.getElementById('discount-percentage').value) / 100;
+        config.discountDuration = parseInt(document.getElementById('discount-duration').value) * 1000;
+        config.marketInterval = parseInt(document.getElementById('market-interval').value) * 1000;
+        config.crashTime = parseInt(document.getElementById('crash-time').value);
+        config.crashPercentage = parseFloat(document.getElementById('crash-percentage').value) / 100;
+        config.priceFluctuation = parseFloat(document.getElementById('price-fluctuation').value) / 100;
+        config.purchaseIncrease = parseFloat(document.getElementById('purchase-increase').value) / 100;
+        config.indexIncrement = parseInt(document.getElementById('index-increment').value);
+        config.tickerDuration = parseInt(document.getElementById('ticker-duration').value);
+        config.notificationTime = parseFloat(document.getElementById('notification-time').value) * 1000;
 
-    // Reiniciar intervalo de mercado
-    if (marketIntervalId) clearInterval(marketIntervalId);
-    marketIntervalId = setInterval(simulateMarket, config.marketInterval);
+        // Reiniciar intervalo de mercado
+        if (marketIntervalId) clearInterval(marketIntervalId);
+        marketIntervalId = setInterval(simulateMarket, config.marketInterval);
 
-    // Actualizar interfaz
+        // Actualizar interfaz
+        displayDrinks();
+        updateTicker();
+        showNotification('Configuración actualizada.', 'success');
+        configPanel.classList.add('hidden');
+        saveConfig();
+        saveDrinks();
+    });
+}
+
+// Sincronizar datos desde localStorage
+function syncData() {
+    loadDrinks();
+    loadConfig();
     displayDrinks();
     updateTicker();
-    showNotification('Configuración actualizada.', 'success');
-    configPanel.classList.add('hidden');
+    updateDiscountTimer();
+}
+
+// Escuchar cambios en localStorage
+window.addEventListener('storage', (event) => {
+    if (event.key === 'barDrinks' || event.key === 'barConfig') {
+        syncData();
+    }
 });
 
 // Iniciar
+loadConfig();
+loadDrinks();
 displayDrinks();
 updateTicker();
 marketIntervalId = setInterval(simulateMarket, config.marketInterval);
