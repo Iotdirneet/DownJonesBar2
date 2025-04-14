@@ -56,62 +56,43 @@ let config = {
 
 let marketIntervalId = null;
 
-// Conexión WebSocket (actualizar con la IP de la Raspberry Pi)
-const ws = new WebSocket('ws://192.168.1.100:8080'); // ¡CAMBIAR POR LA IP DE TU RASPBERRY PI!
-
-ws.onopen = () => {
-    console.log('Conectado al servidor WebSocket');
-    // Solicitar estado inicial
-    ws.send(JSON.stringify({ type: 'init' }));
-};
-
-ws.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    if (message.type === 'state') {
-        Object.assign(drinks, message.drinks);
-        Object.assign(config, message.config);
+// Cargar configuración desde localStorage
+function loadConfig() {
+    const savedConfig = localStorage.getItem('barConfig');
+    if (savedConfig) {
+        config = JSON.parse(savedConfig);
         if (isAdmin) {
-            updateConfigForm();
+            document.getElementById('discount-probability').value = config.discountProbability * 100;
+            document.getElementById('discount-percentage').value = config.discountPercentage * 100;
+            document.getElementById('discount-duration').value = config.discountDuration / 1000;
+            document.getElementById('market-interval').value = config.marketInterval / 1000;
+            document.getElementById('crash-time').value = config.crashTime;
+            document.getElementById('crash-percentage').value = config.crashPercentage * 100;
+            document.getElementById('price-fluctuation').value = config.priceFluctuation * 100;
+            document.getElementById('purchase-increase').value = config.purchaseIncrease * 100;
+            document.getElementById('index-increment').value = config.indexIncrement;
+            document.getElementById('ticker-duration').value = config.tickerDuration;
+            document.getElementById('notification-time').value = config.notificationTime / 1000;
         }
-        displayDrinks();
-        updateTicker();
-        updateDiscountTimer();
     }
-};
-
-ws.onerror = (error) => {
-    console.error('Error WebSocket:', error);
-};
-
-ws.onclose = () => {
-    console.log('Desconectado del servidor WebSocket');
-};
-
-// Actualizar formulario de configuración (solo admin)
-function updateConfigForm() {
-    if (!isAdmin) return;
-    document.getElementById('discount-probability').value = config.discountProbability * 100;
-    document.getElementById('discount-percentage').value = config.discountPercentage * 100;
-    document.getElementById('discount-duration').value = config.discountDuration / 1000;
-    document.getElementById('market-interval').value = config.marketInterval / 1000;
-    document.getElementById('crash-time').value = config.crashTime;
-    document.getElementById('crash-percentage').value = config.crashPercentage * 100;
-    document.getElementById('price-fluctuation').value = config.priceFluctuation * 100;
-    document.getElementById('purchase-increase').value = config.purchaseIncrease * 100;
-    document.getElementById('index-increment').value = config.indexIncrement;
-    document.getElementById('ticker-duration').value = config.tickerDuration;
-    document.getElementById('notification-time').value = config.notificationTime / 1000;
 }
 
-// Enviar estado al servidor
-function sendState() {
-    if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-            type: 'update',
-            drinks,
-            config
-        }));
+// Guardar configuración en localStorage
+function saveConfig() {
+    localStorage.setItem('barConfig', JSON.stringify(config));
+}
+
+// Cargar bebidas desde localStorage
+function loadDrinks() {
+    const savedDrinks = localStorage.getItem('barDrinks');
+    if (savedDrinks) {
+        Object.assign(drinks, JSON.parse(savedDrinks));
     }
+}
+
+// Guardar bebidas en localStorage
+function saveDrinks() {
+    localStorage.setItem('barDrinks', JSON.stringify(drinks));
 }
 
 // Elementos del DOM
@@ -170,7 +151,7 @@ function showNotification(message, type = 'info') {
     notifications.appendChild(notification);
     notification.style.animation = `slideIn 0.3s ease-out, slideOut 0.3s ease-in ${config.notificationTime - 300}ms forwards`;
     setTimeout(() => notification.remove(), config.notificationTime);
-    if (isAdmin) sendState();
+    if (isAdmin) saveDrinks();
 }
 
 // Mostrar bebidas por categoría
@@ -188,7 +169,7 @@ function displayDrinks() {
         const arrowClass = drink.price > drink.prevPrice ? 'arrow-up' : drink.price < drink.prevPrice ? 'arrow-down' : '';
         const displayPrice = (drink.discount && drink.discountEndTime > Date.now()) ? (drink.price * (1 - config.discountPercentage)).toFixed(2) : drink.price.toFixed(2);
         drinkLi.innerHTML = `
-            <span class="name">${drink.name}${(drink.discount && drink.discountEndTime > Date.now()) ? `<span class="discount-text">OFERTA -${(config.discountPercentage * 100).toFixed(0)}%</span>` : ''}</span>
+            <span class="name">${drink.name}${(drink.discount && drink.discountEndTime > Date.now()) ? `<span class="discount-text"> (Oferta -${(config.discountPercentage * 100).toFixed(0)}%)</span>` : ''}</span>
             <span class="price">€${displayPrice}</span>
             <span class="popularity">${drink.popularity}</span>
             <span class="price-change ${arrowClass}"></span>
@@ -259,7 +240,7 @@ if (isAdmin && buyButton) {
         updateCart();
         displayDrinks();
         updateTicker();
-        sendState();
+        saveDrinks();
     });
 }
 
@@ -290,7 +271,7 @@ function simulateMarket() {
     updateIndex();
     displayDrinks();
     updateTicker();
-    if (isAdmin) sendState();
+    saveDrinks();
 }
 
 // Actualizar descuentos
@@ -306,7 +287,7 @@ function updateDiscounts() {
     if (updated) {
         displayDrinks();
         updateTicker();
-        if (isAdmin) sendState();
+        saveDrinks();
     }
 }
 
@@ -439,11 +420,30 @@ if (isAdmin && configForm) {
         updateTicker();
         showNotification('Configuración actualizada.', 'success');
         configPanel.classList.add('hidden');
-        sendState();
+        saveConfig();
+        saveDrinks();
     });
 }
 
+// Sincronizar datos desde localStorage
+function syncData() {
+    loadDrinks();
+    loadConfig();
+    displayDrinks();
+    updateTicker();
+    updateDiscountTimer();
+}
+
+// Escuchar cambios en localStorage
+window.addEventListener('storage', (event) => {
+    if (event.key === 'barDrinks' || event.key === 'barConfig') {
+        syncData();
+    }
+});
+
 // Iniciar
+loadConfig();
+loadDrinks();
 displayDrinks();
 updateTicker();
 marketIntervalId = setInterval(simulateMarket, config.marketInterval);

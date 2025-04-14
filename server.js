@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Estado inicial
+// Estado inicial (puede inicializarse desde un archivo o base de datos)
 let state = {
     drinks: [
         { id: 1, name: "Mojito", price: 8, popularity: 0, category: "cocktails", prevPrice: 8, discount: false, discountEndTime: 0 },
